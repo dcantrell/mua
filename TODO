@@ -1,0 +1,133 @@
+Email client
+============
+
+The objective is a modern text-based/console/terminal-window-capable
+email client.  Mutt is what I currently use, but it is showing its age
+and a lot of functionality I want is not built in to the program.
+Mutt makes it possible by just running external scripts and programs
+but that gets very difficult to manage and maintain.  What I want is a
+modern mutt that does all of what I do externally and removes a lot of
+the functionality I don't care about.  This file is the ideas list/to
+do list.
+
+
+Library Ideas
+-------------
+
+Try to make use of existing libraries when possible.  These are what I
+have found or already know about and my ideas for them:
+
+* GNU mailutils (libmailutils)
+
+  Handling mailbox formats (mbox, Maildir, others?), protocol support
+  (IMAP/POP3/SMTP), header processing, MIME support, network functions
+  for mail transport, and other things.  Seems pretty complete and
+  usable.
+
+* ncurses
+
+  Text widget library.  There are things on top of ncurses, but I'd like
+  to keep things simple and just go with ncurses directly.
+
+* sqlite
+
+  SQL database files for indexing to keep the user interface fast.
+
+* libgcrypt -or- gpgme
+
+  Rather than fork/exec gpg, we can just use libgcrypt here for GPG
+  support.  This may require other libraries.
+
+
+Goals
+-----
+
+* ncurses full screen interface that displays a menu bar across the
+  top of the screen and a list of mail folders along the left of the
+  screen.  The bulk of the screen anchored to the lower left corner
+  would be the message index and message display.
+
+      * All screen resize events should be handled.  Resizing tmux or
+        rxvt should trigger a clean resize.
+
+      * The folder list should have a user-configurable width.  This
+        should be an explicit column count or a percentage of the
+        screen.
+
+      * Multiple accounts should be listed in the folder view as a top
+        folder level with that account's folders below it.  See
+        Thunderbird for an example.
+
+* Simple built in color themes.  I prefer an easy on the eyes theme
+  like WordPerfect for DOS did.  We should offer like 4 options and
+  then custom.  Color themes should be background color, border color
+  for section of the screen, text color, and control text color (like
+  menu names and status bars).
+
+* INI style configuration.  Key=value with sections.  We can write a yacc
+  parser for that.
+
+* Global config file defaults that is at a location set a compile time
+  so that different vendors can argue about the correct location of
+  this file.  Per user file in ~/.PROGRAM/PROGRAMrc where PROGRAM is
+  whatever we call this thing.
+
+* Setup within the program.  Pine did this but you could also edit the
+  config file.  mutt makes you write the config file.  I want the program
+  to help with that.
+
+* Built in support for common MIME types.  Ability to correctly decode
+  and display HTML formatted email.  Ability to show attached or
+  embedded images (libcaca, for example).  Extendable with user
+  configuration for other types.
+
+* Clearly show in the display what account I am on and what folder I am
+  in.
+
+* Easy controls to move messages between folders.
+
+* Easy file attachment interface.  Sort of like a file save dialog box
+  but let you mark multiple files to attach and queue them up while
+  still navigating around the filesystem.  The common case here is I
+  want to attach more than one file from the current directory.
+
+* Smart editor interaction.  We're not going to provide an editor.  The
+  user has to set an editor in the config file.  But this program should
+  know that if I pick emacs, I want to launch it in mail-mode.  If I
+  pick vim, I want it to so something sane.
+
+* Signature handling per account.
+
+* Control to show all headers or not.
+
+* Ability to view the raw message as received.
+
+* Message index should be threaded by default.  Some control over how to
+  change the index.  Common is show newest first or show oldest first.  I
+  don't care much beyond that.
+
+* Support spell checking outgoing emails through something like hunspell.
+
+* GPG signing support.  Ability to sign and/or encrypt.
+
+* For incoming email, allow the user to rely on an external program.  For
+  example, I use mbsync to sync IMAP folders locally to Gmail.  It does
+  that well so for the email program I'd like it to just treat that location
+  as a local Maildir.
+
+* For outgoing email, allow the user to specify the sendmail command.  I
+  use msmtp depending on the account.  I see no reason not to do this.  Though
+  libmailutils may have this built in.
+
+* Full text search per folder or across multiple folders.  SQLite includes FTS5
+  now that can be enabled for full text search.  Their example is even about
+  searching email:  https://www.sqlite.org/fts5.html
+
+* Modern biff support.  I miss email notifications like in the past.  I want to
+  know where I have new mail and in what folder.  This could be tied to libnotify
+  or something else.  Actually libnotify makes sense.
+
+* User-Agent string support.  I'd like the ability to turn this off or not.
+
+* Intelligent patch handling.  If I get an email that is a patch, I'd like the
+  mail client to offer the ability to save that as a .patch file somewhere.
